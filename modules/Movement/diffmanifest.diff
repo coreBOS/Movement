@@ -1,0 +1,45 @@
+--- manifest.xml	2012-07-12 11:49:48.000000000 +0200
++++ /home/omar/www/vtiger/vt_multiwh53/build/Movement/manifest.xml	2013-09-13 11:03:44.416053959 +0200
+@@ -1,12 +1,32 @@
+ <?xml version='1.0'?>
+ <module>
+-<exporttime>2011-12-07 16:25:21</exporttime>
+ <name>Movement</name>
+ <label>Movement</label>
+ <parent>Inventory</parent>
+ <dependencies>
+ <vtiger_version>5.3.0</vtiger_version>
+ </dependencies>
++<license>
++<inline><![CDATA[
++ *************************************************************************************************
++ * Copyright 2012 JPL TSolucio, S.L.  --  This file is a part of vtiger CRM Multiwarehouse Extension.
++ * You can copy, adapt and distribute the work under the "Attribution-NonCommercial-ShareAlike"
++ * Vizsage Public License (the "License"). You may not use this file except in compliance with the
++ * License. Roughly speaking, non-commercial users may share and modify this code, but must give credit
++ * and share improvements. However, for proper details please read the full License, available at
++ * http://vizsage.com/license/Vizsage-License-BY-NC-SA.html and the handy reference for understanding
++ * the full license at http://vizsage.com/license/Vizsage-Deed-BY-NC-SA.html. Unless required by
++ * applicable law or agreed to in writing, any software distributed under the License is distributed
++ * on an  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and limitations under the
++ * License terms of Creative Commons Attribution-NonCommercial-ShareAlike 3.0 (the License).
++ *************************************************************************************************
++ *  Module       : Movement - vtiger CRM Multiwarehouse Extension
++ *  Version      : 5.3.0
++ *  Author       : JPL TSolucio, S. L.
++ *************************************************************************************************
++]]></inline>
++</license>
+ <tables>
+ <table>
+ <name>vtiger_movement</name>
+@@ -15,7 +35,7 @@
+   `srcwhid` int(11) DEFAULT NULL,
+   `pdoid` int(11) DEFAULT NULL,
+   `dstwhid` int(11) DEFAULT NULL,
+-  `unitsmvto` decimal(10,0) DEFAULT NULL,
++  `unitsmvto` decimal(10,2) DEFAULT NULL,
+   `moveno` varchar(255) DEFAULT NULL,
+   `refid` int(11) DEFAULT NULL,
+   `seqno` int(11) DEFAULT NULL,

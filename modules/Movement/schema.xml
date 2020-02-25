@@ -1,0 +1,26 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>vtiger_movement</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_movement` (
+  `movementid` int(11) NOT NULL DEFAULT '0',
+  `srcwhid` int(11) DEFAULT NULL,
+  `pdoid` int(11) DEFAULT NULL,
+  `dstwhid` int(11) DEFAULT NULL,
+  `unitsmvto` decimal(10,2) DEFAULT NULL,
+  `moveno` varchar(255) DEFAULT NULL,
+  `refid` int(11) DEFAULT NULL,
+  `seqno` int(11) DEFAULT NULL,
+  PRIMARY KEY (`movementid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vtiger_movementcf</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_movementcf` (
+  `movementid` int(11) NOT NULL,
+  PRIMARY KEY (`movementid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+	</tables>
+</schema>
