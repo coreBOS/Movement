@@ -6,9 +6,10 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-function WareHouseProductsOpenCapture(fromlink,fldname,MODULE,ID) {
+function WareHouseProductsOpenCapture(fromlink, fldname, MODULE, ID) {
 	var WindowSettings = "width=680,height=602,resizable=0,scrollbars=0,top=150,left=200";
 	var baseURL = "index.php?module=Products&action=Popup&html=Popup_picker&form=vtlibPopupView&forfield="+fldname+"&srcmodule="+MODULE;
-	if(MODULE == 'Movement')
-			window.open(baseURL+"&forrecord="+ID+"&srcwhid="+ document.EditView.srcwhid.value+"&cbcustompopupinfo=srcwhid","vtlibui10",WindowSettings);
+	if (MODULE == 'Movement') {
+		window.open(baseURL+"&forrecord="+ID+"&srcwhid="+ document.EditView.srcwhid.value+"&cbcustompopupinfo=srcwhid", 'vtlibui10', WindowSettings);
+	}
 }

@@ -18,8 +18,8 @@ $mod_strings = array(
 	'LBL_DESCRIPTION_INFORMATION' => 'Description',
 
 	'MoveNo' => 'Movement No',
-	'SrcWarehouse' => 'Warehouse Source',
-	'DstWarehouse' => 'Warehouse Destination',
+	'SrcWarehouse' => 'Source',
+	'DstWarehouse' => 'Destination',
 	'Producto' => 'Product',
 	'Units' => 'Units',
 	'Refers to' => 'Refers to',

@@ -12,24 +12,23 @@
 * See the License for the specific language governing permissions and limitations under the
 * License terms of Creative Commons Attribution-NonCommercial-ShareAlike 3.0 (the License).
 *************************************************************************************************/
- 
+
 class MovementHandler extends VTEventHandler {
 
-	function handleEvent($eventName, $entityData) {
-		global $log, $adb;
+	public function handleEvent($eventName, $entityData) {
 
-		if($eventName == 'vtiger.entity.beforesave') {			
+		if ($eventName == 'vtiger.entity.beforesave') {
 			$moduleName = $entityData->getModuleName();
 			if ($moduleName == 'Movement') {
 				$mvId = $entityData->getId();
-				if(!empty($mvId) && $_REQUEST['action'] != 'Import') {  // Editing, we undo the previous values of movement
+				if (!empty($mvId) && $_REQUEST['action'] != 'Import') {  // Editing, we undo the previous values of movement
 					$entityData->focus->column_fields['unitsmvto']=-1*$entityData->focus->column_fields['unitsmvto'];
 					$entityData->focus->executeMovement();
 				}
 			}
 		}
 
-		if($eventName == 'vtiger.entity.aftersave' or $eventName == 'vtiger.entity.afterrestore') {
+		if ($eventName == 'vtiger.entity.aftersave' || $eventName == 'vtiger.entity.afterrestore') {
 			$moduleName = $entityData->getModuleName();
 			if ($moduleName == 'Movement') {
 				// We always do this, if creating it is correct, if editing we undid the previous changes
@@ -37,7 +36,5 @@ class MovementHandler extends VTEventHandler {
 			}
 		}
 	}
-
 }
-
 ?>

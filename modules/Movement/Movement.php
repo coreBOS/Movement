@@ -18,7 +18,7 @@ class Movement extends CRMEntity {
 	/** Indicator if this is a custom module or standard module */
 	public $IsCustomModule = true;
 	public $HasDirectImageField = false;
-	public $moduleIcon = array('library' => 'standard', 'containerClass' => 'slds-icon_container slds-icon-standard-account', 'class' => 'slds-icon', 'icon'=>'account');
+	public $moduleIcon = array('library' => 'utility', 'containerClass' => 'slds-icon_container slds-icon-standard-account', 'class' => 'slds-icon', 'icon'=>'move');
 
 	/**
 	 * Mandatory table for supporting custom fields.
@@ -38,7 +38,8 @@ class Movement extends CRMEntity {
 	public $tab_name_index = array(
 		'vtiger_crmentity' => 'crmid',
 		'vtiger_movement' => 'movementid',
-		'vtiger_movementcf' => 'movementid');
+		'vtiger_movementcf' => 'movementid',
+	);
 
 	/**
 	 * Mandatory for Listing (Related listview)
@@ -51,7 +52,7 @@ class Movement extends CRMEntity {
 		'DstWarehouse'=> array('movement' => 'dstwhid'),
 		'Producto'=> array('movement' => 'pdoid'),
 		'Units'=> array('movement' => 'unitsmvto'),
-		'Assigned To' => array('crmentity' =>'smownerid')
+		'Assigned To' => array('crmentity' => 'smownerid')
 	);
 	public $list_fields_name = array(
 		/* Format: Field Label => fieldname */
@@ -98,7 +99,7 @@ class Movement extends CRMEntity {
 	public $def_detailview_recname = 'moveno';
 
 	// Required Information for enabling Import feature
-	public $required_fields = array('moveno'=>1);
+	public $required_fields = array();
 
 	// Callback function list during Importing
 	public $special_functions = array('set_import_assigned_user');
@@ -115,7 +116,7 @@ class Movement extends CRMEntity {
 		}
 	}
 
-	function trash($module, $id) {
+	public function trash($module, $id) {
 		$ms=new Movement();
 		$ms->retrieve_entity_info($id, $module);
 		$ms->column_fields['unitsmvto']=-1*$ms->column_fields['unitsmvto'];
@@ -123,7 +124,7 @@ class Movement extends CRMEntity {
 		parent::trash($module, $id);
 	}
 
-	function executeMovement() {
+	public function executeMovement() {
 		global $adb, $log, $current_user;
 		include_once 'modules/Stock/Stock.php';
 		$uds=$this->column_fields['unitsmvto'];
@@ -136,7 +137,7 @@ class Movement extends CRMEntity {
 			inner join vtiger_crmentity on crmid = stockid
 			where deleted=0 and whid='.$this->column_fields['srcwhid'].' and pdoid='.$this->column_fields['pdoid'];
 		$cntrs=$adb->query($sqlstock);
-		$cnt=$adb->query_result($cntrs,0,0);
+		$cnt=$adb->query_result($cntrs, 0, 0);
 		if ($cnt==0) { // no stock for this product in that warehouse > we create one
 			$stk=new Stock();
 			unset($stk->id);
@@ -150,7 +151,7 @@ class Movement extends CRMEntity {
 			inner join vtiger_crmentity on crmid = stockid
 			where deleted=0 and whid='.$this->column_fields['dstwhid'].' and pdoid='.$this->column_fields['pdoid'];
 		$cntrs=$adb->query($sqlstock);
-		$cnt=$adb->query_result($cntrs,0,0);
+		$cnt=$adb->query_result($cntrs, 0, 0);
 		if ($cnt==0) { // no stock for this product in that warehouse > we create one
 			$stk=new Stock();
 			unset($stk->id);
@@ -183,43 +184,41 @@ class Movement extends CRMEntity {
 			$this->setModuleSeqNumber('configure', $modulename, 'MV-', '0000001');
 			$module = Vtiger_Module::getInstance($modulename);
 			$mod = Vtiger_Module::getInstance('Products');
-			$mod->setRelatedList($module, 'Movement', Array('ADD'),'get_dependents_list');
+			$mod->setRelatedList($module, 'Movement', array('ADD'), 'get_dependents_list');
 			$mod = Vtiger_Module::getInstance('Warehouse');
-			$mod->setRelatedList($module, 'Movement', Array('ADD'),'get_dependents_list');
+			$mod->setRelatedList($module, 'Movement', array('ADD'), 'get_dependents_list');
 			// Workflow functions for inc/dec stock
 			global $adb;
 			$wfid=$adb->getUniqueID('com_vtiger_workflowtasks_entitymethod');
 			$adb->query("insert into com_vtiger_workflowtasks_entitymethod
-             (workflowtasks_entitymethod_id,module_name,method_name,function_path,function_name)
-             values
-             ($wfid,'PurchaseOrder','mwIncrementStock','modules/Movement/InventoryIncDec.php','mwIncrementStock')");
+				(workflowtasks_entitymethod_id,module_name,method_name,function_path,function_name)
+				values
+				($wfid,'PurchaseOrder','mwIncrementStock','modules/Movement/InventoryIncDec.php','mwIncrementStock')");
 			$wfid=$adb->getUniqueID('com_vtiger_workflowtasks_entitymethod');
 			$adb->query("insert into com_vtiger_workflowtasks_entitymethod
-             (workflowtasks_entitymethod_id,module_name,method_name,function_path,function_name)
-             values
-             ($wfid,'Invoice','mwDecrementStock','modules/Movement/InventoryIncDec.php','mwDecrementStock')");
+				(workflowtasks_entitymethod_id,module_name,method_name,function_path,function_name)
+				values
+				($wfid,'Invoice','mwDecrementStock','modules/Movement/InventoryIncDec.php','mwDecrementStock')");
 			$wfid=$adb->getUniqueID('com_vtiger_workflowtasks_entitymethod');
 			$adb->query("insert into com_vtiger_workflowtasks_entitymethod
-             (workflowtasks_entitymethod_id,module_name,method_name,function_path,function_name)
-             values
-             ($wfid,'SalesOrder','mwDecrementStock','modules/Movement/InventoryIncDec.php','mwDecrementStock')");
-		$wfid=$adb->getUniqueID('com_vtiger_workflowtasks_entitymethod');
-		$adb->query("insert into com_vtiger_workflowtasks_entitymethod
-			     (workflowtasks_entitymethod_id,module_name,method_name,function_path,function_name)
-			     values
-			     ($wfid,'PurchaseOrder','mwReturnStock','modules/Movement/InventoryIncDec.php','mwReturnStock')");
-		
-		$wfid=$adb->getUniqueID('com_vtiger_workflowtasks_entitymethod');
-		$adb->query("insert into com_vtiger_workflowtasks_entitymethod
-			     (workflowtasks_entitymethod_id,module_name,method_name,function_path,function_name)
-			     values
-			     ($wfid,'Invoice','mwReturnStock','modules/Movement/InventoryIncDec.php','mwReturnStock')");
-		
-		$wfid=$adb->getUniqueID('com_vtiger_workflowtasks_entitymethod');
-		$adb->query("insert into com_vtiger_workflowtasks_entitymethod
-			     (workflowtasks_entitymethod_id,module_name,method_name,function_path,function_name)
-			     values
-			     ($wfid,'SalesOrder','mwReturnStock','modules/Movement/InventoryIncDec.php','mwReturnStock')");			
+				(workflowtasks_entitymethod_id,module_name,method_name,function_path,function_name)
+				values
+				($wfid,'SalesOrder','mwDecrementStock','modules/Movement/InventoryIncDec.php','mwDecrementStock')");
+			$wfid=$adb->getUniqueID('com_vtiger_workflowtasks_entitymethod');
+			$adb->query("insert into com_vtiger_workflowtasks_entitymethod
+				(workflowtasks_entitymethod_id,module_name,method_name,function_path,function_name)
+				values
+				($wfid,'PurchaseOrder','mwReturnStock','modules/Movement/InventoryIncDec.php','mwReturnStock')");
+			$wfid=$adb->getUniqueID('com_vtiger_workflowtasks_entitymethod');
+			$adb->query("insert into com_vtiger_workflowtasks_entitymethod
+				(workflowtasks_entitymethod_id,module_name,method_name,function_path,function_name)
+				values
+				($wfid,'Invoice','mwReturnStock','modules/Movement/InventoryIncDec.php','mwReturnStock')");
+			$wfid=$adb->getUniqueID('com_vtiger_workflowtasks_entitymethod');
+			$adb->query("insert into com_vtiger_workflowtasks_entitymethod
+				(workflowtasks_entitymethod_id,module_name,method_name,function_path,function_name)
+				values
+				($wfid,'SalesOrder','mwReturnStock','modules/Movement/InventoryIncDec.php','mwReturnStock')");
 		} elseif ($event_type == 'module.disabled') {
 			// Handle actions when this module is disabled.
 		} elseif ($event_type == 'module.enabled') {

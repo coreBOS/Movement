@@ -13,23 +13,24 @@
 * License terms of Creative Commons Attribution-NonCommercial-ShareAlike 3.0 (the License).
 *************************************************************************************************/
 
-function mwUpdateStock($entity_id,$src,$dst) {
-	global $log, $adb,$updateInventoryProductRel_update_product_array,$current_user;
+function mwUpdateStock($entity_id, $src, $dst) {
+	global $log, $adb, $updateInventoryProductRel_update_product_array, $current_user;
 	include_once 'modules/Movement/Movement.php';
-	$mv=new Movement();
-	$mv->column_fields['assigned_user_id']=$current_user->id;
+	$mv = new Movement();
+	$mv->column_fields['assigned_user_id'] = $current_user->id;
 	$update_product_array = $updateInventoryProductRel_update_product_array;
-	$log->debug("Entering into function mwUpdateStock(".$entity_id.").");
+	$log->debug('> mwUpdateStock '.$entity_id);
 
-	if(!empty($update_product_array)){
-		foreach($update_product_array as $id=>$seq){
-			foreach($seq as $seq=>$product_info){
-				foreach($product_info as $pdo=>$uds){
-					if (getSalesEntityType($pdo)=='Services') continue;
+	if (!empty($update_product_array)) {
+		foreach ($update_product_array as $seq) {
+			foreach ($seq as $seq => $product_info) {
+				foreach ($product_info as $pdo => $uds) {
+					if (getSalesEntityType($pdo)=='Services') {
+						continue;
+					}
 					$mvid=$adb->getone("select movementid from vtiger_movement
-						inner join vtiger_crmentity on vtiger_crmentity.crmid = vtiger_movement.movementid 
-						 where deleted = 0 and srcwhid=$src and dstwhid=$dst and pdoid=$pdo
-						   and refid=$entity_id and seqno=$seq");
+						inner join vtiger_crmentity on vtiger_crmentity.crmid = vtiger_movement.movementid
+						where deleted = 0 and srcwhid=$src and dstwhid=$dst and pdoid=$pdo and refid=$entity_id and seqno=$seq");
 					if (!empty($mvid)) {
 						$mv->trash('Movement', $mvid);
 					}
@@ -37,27 +38,29 @@ function mwUpdateStock($entity_id,$src,$dst) {
 			}
 		}
 	}
-	$adb->pquery("UPDATE vtiger_inventoryproductrel SET incrementondel=1 WHERE id=?",array($entity_id));
-	
-	$product_info = $adb->pquery("SELECT productid,sequence_no, quantity from vtiger_inventoryproductrel WHERE id=?",array($entity_id));
+	$adb->pquery('UPDATE vtiger_inventoryproductrel SET incrementondel=1 WHERE id=?', array($entity_id));
+
+	$product_info = $adb->pquery('SELECT productid,sequence_no, quantity from vtiger_inventoryproductrel WHERE id=?', array($entity_id));
 	$numrows = $adb->num_rows($product_info);
-	for($index = 0;$index <$numrows;$index++){
-		$mv->column_fields['pdoid']=$adb->query_result($product_info,$index,'productid');
-		if (getSalesEntityType($mv->column_fields['pdoid'])=='Services') continue;
-		$sequence_no = $adb->query_result($product_info,$index,'sequence_no');
+	for ($index = 0; $index <$numrows; $index++) {
+		$mv->column_fields['pdoid']=$adb->query_result($product_info, $index, 'productid');
+		if (getSalesEntityType($mv->column_fields['pdoid'])=='Services') {
+			continue;
+		}
+		$sequence_no = $adb->query_result($product_info, $index, 'sequence_no');
 		unset($mv->id);
 		$mv->mode='';
 		$mv->column_fields['srcwhid']=$src;
 		$mv->column_fields['dstwhid']=$dst;
-		$mv->column_fields['unitsmvto']=$adb->query_result($product_info,$index,'quantity');
+		$mv->column_fields['unitsmvto']=$adb->query_result($product_info, $index, 'quantity');
 		$mv->column_fields['refid']=$entity_id;
 		$mv->column_fields['seqno']=$sequence_no;
 		$mv->save('Movement');
 		$adb->query("update vtiger_movement set refid=$entity_id, seqno=$sequence_no where movementid=".$mv->id);
-		mwUpdateStockSubProducts($mv->column_fields['pdoid'],$mv,$mv->column_fields['unitsmvto'],$entity_id,$sequence_no);
-			}
-	$log->debug("Exit from function mwUpdateStock(".$entity_id.")");
-		}
+		mwUpdateStockSubProducts($mv->column_fields['pdoid'], $mv, $mv->column_fields['unitsmvto'], $entity_id, $sequence_no);
+	}
+	$log->debug('< mwUpdateStock');
+}
 
 function mwUpdateStockSubProducts($pdoid,$focus_mv,$qty_parent,$entity_id,$sequence_no) {
 	global $adb;
@@ -67,18 +70,17 @@ function mwUpdateStockSubProducts($pdoid,$focus_mv,$qty_parent,$entity_id,$seque
 		INNER JOIN vtiger_productcf ON vtiger_productcf.productid = vtiger_products.productid
 		LEFT JOIN vtiger_seproductsrel ON vtiger_seproductsrel.crmid = vtiger_products.productid AND vtiger_seproductsrel.setype='Products'
 		WHERE vtiger_crmentity.deleted = 0 AND vtiger_seproductsrel.productid = ?",array($pdoid));
-	if($adb->num_rows($res_sub_product)>0){
-		for($j=0;$j<$adb->num_rows($res_sub_product);$j++){
+	if ($adb->num_rows($res_sub_product)>0) {
+		for($j=0; $j<$adb->num_rows($res_sub_product); $j++) {
 			$pdo = $adb->query_result($res_sub_product,$j,"productid");
 
 			//Check if movement exist
 			$mvid=$adb->getone("select movementid from vtiger_movement
 				inner join vtiger_crmentity on vtiger_crmentity.crmid = vtiger_movement.movementid
-				 where deleted = 0 and srcwhid=$src and dstwhid=$dst and pdoid=$pdo
-				 and refid=$entity_id and seqno=$sequence_no");
+				where deleted = 0 and srcwhid=$src and dstwhid=$dst and pdoid=$pdo and refid=$entity_id and seqno=$sequence_no");
 			if (!empty($mvid)) {
 				$focus_mv->trash('Movement', $mvid);
-	}
+			}
 
 			$focus_mv->column_fields['pdoid'] = $pdo;
 			$focus_mv->column_fields['unitsmvto'] = $adb->query_result($res_sub_product,$j,"qty") * $qty_parent;
@@ -97,32 +99,35 @@ function mwIncrementStock($entity) {
 	$entity_id = $entity_id[1];
 	$src=$adb->getone("select warehouseid from vtiger_warehouse where warehno='Purchase'");
 	$dst=$adb->getone("select whid from vtiger_purchaseorder where purchaseorderid=$entity_id");
-	mwUpdateStock($entity_id,$src,$dst);
+	mwUpdateStock($entity_id, $src, $dst);
 }
+
 function mwDecrementStock($entity) {
 	global $adb;
 	$entity_id = vtws_getIdComponents($entity->getId());
 	$entity_id = $entity_id[1];
-	if ($entity->moduleName=='Invoice')
-	  $table='invoice';
-	else
-	  $table='salesorder';
+	if ($entity->moduleName=='Invoice') {
+		$table='invoice';
+	} else {
+		$table='salesorder';
+	}
 	$dst=$adb->getone("select warehouseid from vtiger_warehouse where warehno='Sale'");
 	$src=$adb->getone("select whid from vtiger_$table where ".$table."id=$entity_id");
-	mwUpdateStock($entity_id,$src,$dst);
+	mwUpdateStock($entity_id, $src, $dst);
 }
 
 function mwReturnPOStock($entity_id) {
 	global $adb;
 	$dst=$adb->getone("select warehouseid from vtiger_warehouse where warehno='Purchase'");
 	$src=$adb->getone("select whid from vtiger_purchaseorder where purchaseorderid=$entity_id");
-	mwUpdateStock($entity_id,$src,$dst);
+	mwUpdateStock($entity_id, $src, $dst);
 }
-function mwReturnSOIStock($entity_id,$table) {
+
+function mwReturnSOIStock($entity_id, $table) {
 	global $adb;
 	$src=$adb->getone("select warehouseid from vtiger_warehouse where warehno='Sale'");
 	$dst=$adb->getone("select whid from vtiger_$table where ".$table."id=$entity_id");
-	mwUpdateStock($entity_id,$src,$dst);
+	mwUpdateStock($entity_id, $src, $dst);
 }
 
 function mwSrcToDstStock($entity) {
@@ -145,10 +150,10 @@ function mwReturnStock($entity) {
 	$entity_id = $entity_id[1];
 	switch ($entity->moduleName) {
 		case 'Invoice':
-			mwReturnSOIStock($entity_id,'invoice');
+			mwReturnSOIStock($entity_id, 'invoice');
 			break;
 		case 'SalesOrder':
-			mwReturnSOIStock($entity_id,'salesorder');
+			mwReturnSOIStock($entity_id, 'salesorder');
 			break;
 		case 'PurchaseOrder':
 			mwReturnPOStock($entity_id);
@@ -158,5 +163,4 @@ function mwReturnStock($entity) {
 			break;
 	}
 }
-
 ?>

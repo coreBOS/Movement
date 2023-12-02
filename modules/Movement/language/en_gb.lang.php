@@ -9,14 +9,21 @@
  ************************************************************************************/
 
 $mod_strings = array(
-	'ModuleName' => 'Module Name',
-	'SINGLE_ModuleName' => 'Module Name',
-	'ModuleName ID' => 'Module Name ID',
+	'Movement' => 'Stock Movement',
+	'SINGLE_Movement' => 'Stock Movement',
+	'Movement ID' => 'Stock Movement ID',
 
 	'LBL_CUSTOM_INFORMATION' => 'Custom Information',
-	'LBL_MODULEBLOCK_INFORMATION' => 'ModuleBlock Information',
+	'LBL_MOVEMENT_INFORMATION' => 'Movement Information',
 	'LBL_DESCRIPTION_INFORMATION' => 'Description',
 
-	'ModuleFieldLabel' => 'ModuleFieldLabel Text',
+	'MoveNo' => 'Movement No',
+	'SrcWarehouse' => 'Source',
+	'DstWarehouse' => 'Destination',
+	'Producto' => 'Product',
+	'Units' => 'Units',
+	'Refers to' => 'Refers to',
+	'Line sequence' => 'Line sequence',
+	'Movement ID' => 'Stock Movement ID',
 );
 ?>

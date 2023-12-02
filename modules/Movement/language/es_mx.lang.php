@@ -9,12 +9,20 @@
  ************************************************************************************/
 
 $mod_strings = array(
-	'ModuleName' => 'Module Name',
-	'SINGLE_ModuleName' => 'Module Name',
-	'ModuleName ID' => 'Module Name ID',
+	'Movement' => 'Mvto Stock',
+	'SINGLE_Movement' => 'Mvto Stock',
+	'Movement ID' => 'Mvto Stock ID',
 
 	'LBL_CUSTOM_INFORMATION' => 'Información Personalizada',
-	'LBL_MODULEBLOCK_INFORMATION' => 'Información ModuleName',
+	'LBL_MOVEMENT_INFORMATION' => 'Información Mvto Stock',
 	'LBL_DESCRIPTION_INFORMATION' => 'Descripción',
+
+	'MoveNo' => 'Ref. Mvto',
+	'SrcWarehouse' => 'Almacén Origen',
+	'DstWarehouse' => 'Almacén Destino',
+	'Producto' => 'Producto',
+	'Units' => 'Unidades',
+	'Refers to' => 'Relacionado con',
+	'Line sequence' => 'Orden línea',
 );
 ?>
